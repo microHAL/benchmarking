@@ -22,7 +22,7 @@ def runLatexToPDF(filename):
 
 
 def buildConfiguration(config):
-	definesList = [['RESULT_TEST', config], ['RETURN_ERROR_TEST', config], ['ERROR_BY_ARGUMENT_TEST', config]]
+	definesList = [['RESULT_TEST', config], ['RETURN_ERROR_TEST', config], ['OPTIONAL_TEST', config], ['ERROR_BY_ARGUMENT_TEST', config]]
 
 	sizeOutput = []
 	for defines in definesList:
@@ -38,14 +38,14 @@ def buildConfiguration(config):
 
 def saveFile(filename, data):
 	with open(filename, 'w') as f:
-		testName = ['result','return','argument']
+		testName = ['result', 'return', 'optional', 'argument']
 		f.write('impl,data,bss,text\n')
 		for i, size in enumerate(data):
 			f.write(testName[i] + ',' + str(size['data']) + ', ' + str(size['bss']) + ', ' + str(size['text']) + '\n')
 
 def saveTableFile(filename, dataFromSameUnit, dataFromSeparateUnit):
 	with open(filename, 'w') as f:
-		testName = ['result','return','argument']
+		testName = ['result', 'return', 'optional', 'argument']
 		f.write('implementation,translation unit,bss,data,text,dec\n')
 		for i, size in enumerate(dataFromSameUnit):
 			f.write(testName[i] + ',same,' + str(size['bss']) + ', ' + str(size['data']) + ', ' + str(size['text']) + ', ' + str(size['dec']) + '\n')

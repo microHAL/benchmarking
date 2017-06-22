@@ -48,6 +48,10 @@
 #include "returnError.h"
 #endif
 
+#if defined(OPTIONAL_TEST)
+#include "optionalTest.h"
+#endif
+
 #if defined(RESULT_TEST)
 #include "returnErrorByResultClass.h"
 #endif
@@ -116,19 +120,42 @@ int main() {
   }
 #endif
 
+#if defined(OPTIONAL_TEST)
+  if (auto result = test.functionReturningUint8_t()) {
+    uint8_t tt = *result;
+  } else {
+    printError(Test::Error::Serious);
+  }
+  if (auto result = test.functionReturningUint32_t()) {
+    uint32_t tt = *result;
+  } else {
+    printError(Test::Error::Serious);
+  }
+  if (auto result = test.functionReturningUint64_t()) {
+    uint64_t tt = *result;
+  } else {
+    printError(Test::Error::Serious);
+  }
+  if (auto result = test.functionReturningFloat()) {
+    float tt = *result;
+  } else {
+    printError(Test::Error::Serious);
+  }
+#endif
+
 #if defined(RESULT_TEST)
   if (auto result = test.functionReturningUint8_t()) {
-    float tt = *result;
+    uint8_t tt = *result;
   } else {
     printError(result.error());
   }
   if (auto result = test.functionReturningUint32_t()) {
-    float tt = *result;
+    uint32_t tt = *result;
   } else {
     printError(result.error());
   }
   if (auto result = test.functionReturningUint64_t()) {
-    float tt = *result;
+    uint64_t tt = *result;
   } else {
     printError(result.error());
   }

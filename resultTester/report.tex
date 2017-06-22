@@ -1,0 +1,296 @@
+\documentclass{article}
+
+\usepackage[binary-units=true]{siunitx}
+\usepackage{tikz} % To generate the plot from csv
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{multirow}
+\usepackage{booktabs,colortbl}
+\usepackage{hyperref}
+
+\usepackage{listings}
+\usepackage{xcolor}
+\lstset { %
+    language=C++,
+    backgroundcolor=\color{black!5}, % set backgroundcolor
+    basicstyle=\footnotesize,% basic font setting
+}
+
+%\usepackage{titlesec}
+%\usepackage{hyperref}
+%\usepackage{geometry} 
+%\usepackage[section]{placeins}
+%\usepackage[subsection]{placeins}
+%\newcommand{\sectionbreak}{\clearpage}
+%\newgeometry{lmargin=2.5cm, rmargin=2.5cm} 
+
+\usepackage{placeins}
+
+\let\Oldsection\section
+\renewcommand{\section}{\FloatBarrier\Oldsection}
+
+\let\Oldsubsection\subsection
+\renewcommand{\subsection}{\FloatBarrier\Oldsubsection}
+
+\let\Oldsubsubsection\subsubsection
+\renewcommand{\subsubsection}{\FloatBarrier\Oldsubsubsection}
+
+
+\pgfplotsset{compat=newest} % Allows to place the legend below plot
+\usepgfplotslibrary{units} % Allows to enter the units nicely
+
+\sisetup{
+  round-mode          = places,
+  round-precision     = 2,
+}
+
+
+\pgfplotstableread[col sep=comma]{same_size.csv}\datatable
+\pgfplotstableread[col sep=comma]{separate_size.csv}\datatableSeparate
+\makeatletter
+\pgfplotsset{
+    /pgfplots/flexible xticklabels from table/.code n args={3}{%
+        \pgfplotstableread[#3]{#1}\coordinate@table
+        \pgfplotstablegetcolumn{#2}\of{\coordinate@table}\to\pgfplots@xticklabels
+        \let\pgfplots@xticklabel=\pgfplots@user@ticklabel@list@x
+    }
+}
+\makeatother
+
+
+
+\begin{document}
+\tableofcontents
+\newpage
+\section{Introduction}
+This article will discuss methods of returning errors in modern C++ programs where using exceptions from different reasons is forbidden or impossible.
+\section{Methods of returning error}
+\subsection{C style error return}
+Let's consider a function that has to return some data, for example, unsigned 8 bit value (uint8\_t). Our function from time to time may fail, for example this failure may occur when we are try to communicate with external device and we detect communication bus error. So our function should not only return interesting value, but also indicate if an error occurred. So it appeared that our function HAS to return two values.\newline 
+Lets name our function \textbf{functionReturningUint8\_t}. First method of returning error is to share one return value between usage value and error code. In our case we want to return only positive values so we can use negative values to indicate an error. So function declaration will look like below.
+
+\begin{lstlisting}
+int8_t functionReturningUint8_t();
+\end{lstlisting}
+
+An example of the usage such a function is shown on the second listing.
+
+\begin{lstlisting}
+int8_t result = functionReturningUint8_t();
+if (result > 0) {
+  doSomething(100/result); // usable data, do some calculation    
+} else {
+  printError(result.error()); 
+}
+\end{lstlisting}
+
+But this way of returning errors is very dangerous, and may produce errors that are hard to track. One of possible mistakes is presented on another listing. In this case we can assume that error printing was intentionally removed, but someone forget to check if our value is correct. So from time to time, when function will return 0 as an error indication, program will try to divide by 0, and this will cause hard fault or segmentation fault.\newline
+Please do not use a method of returning errors like the one presented below as it may produce some not obvious errors that are appearing from time to time.
+\begin{lstlisting}
+int8_t result = functionReturningUint8_t();
+doSomething(100/result); // error, dividing by 0   
+\end{lstlisting}
+
+The second way is to return an error form a function and pass usable data through a function parameter. Function declaration that is applying this method is presented on listing below.
+\begin{lstlisting}
+enum Error {
+  None,
+  Serious
+};
+Error functionReturningUint8_t(uint8_t &data);
+\end{lstlisting}
+Because we are using separate fields to return an error and data, we can create a special type of a \textbf{Error} for error indication. This will improve readability or our code because comparing to Error::None is more expressive than comparing to 0. 
+\begin{lstlisting}
+uint8_t data; 
+if (functionReturningUint8_t(data) == Error::None) {
+    // do stuff
+}
+\end{lstlisting}
+Listing above is easier to read than presented below.
+\begin{lstlisting}
+uint8_t data;
+if (functionReturningUint8_t(data) == 0) // unclear why we are 
+                                         // comparing to 0, magic
+                                         // number
+{
+    // do stuff
+}
+\end{lstlisting}
+
+If you want to return an error you should create some \textbf{enum} that will represent your error codes.\newline
+Let's discuss drawbacks of this solution. While first looking at our code it is hard to say if \textbf{data} is a function input or output. This can be improved by passing data parameter by pointer instead of reference, but then inside \textbf{functionReturningUint8\_t()} we need to check if passed parameter is valid pointer. This will cause some performance issue. Another issue is that in our code we have uninitialized value.
+
+A similar method is to replace an error and data fields in a function declaration:
+\begin{lstlisting}
+uint8_t functionReturningUint8_t(Error *data);
+\end{lstlisting}
+
+This solution has the same drawbacks as the previous one.
+
+\subsection{Indicating Errors with std::optional}
+C++17 standard introduced new utility library, class is called \textbf{std::optional} and is available after including \textbf{optional} header file. This class was not designed to return errors but to return some data that may or may not be present. To indicate error, we will assume that when value is present everything went good and no error is present. When no data will be available we will assume that some error occurred. Unfortunately when using \textbf{std::optional} we can't easily check what kind of error occurred. So considered function is presented on listing below.
+
+\begin{lstlisting}
+std::optional<uint8_t> functionReturningUint8_t();
+\end{lstlisting}
+
+Example of such function usage is shown below:
+\begin{lstlisting}
+if (auto data = functionReturningUint8_t) {
+    doImportantStuff(*data);
+} else {
+    // an error occurred
+}
+\end{lstlisting}
+
+This variant solves problem with uninitialized data variable. Additionally if someone will try to access to data when no data is present \textbf{std::optional} will thrown an \textbf{std::bad\_optional\_access} exception. Because we are considering environments where exceptions are disabled instead of throwing exception \textbf{std::terminate} will be called. This is very good solution because we can easily find place where some error aper. 
+
+\subsection{Indicating Errors with Result class}
+As a last method we are recommending to use a special class (lets call it Result) that will be very similar to \textbf{
+std::optional} but will hold not only data but also error. This class should have overloaded bool() operator to easily check if returned value is valid. So basic implementation may look like this:
+\begin{lstlisting}
+class Result {
+ public:
+   Result(uint8_t data) : err(Error::None), dat(data){};   
+   Result(Error error) : err(error){};
+   uint8_t data() {return dat; }
+   Error error() {return this->err; }
+   operator bool() const { return err == Error::None; }
+ private:
+   Error err;
+   uint8_t dat;
+};
+\end{lstlisting}
+
+Function declaration is presented bellow:
+\begin{lstlisting}
+Result functionReturningUint8_t();
+\end{lstlisting}
+
+And example of usage:
+\begin{lstlisting}
+if (auto result = test.functionReturningFloat()) {
+    uint8_t data = result.data();
+} else {
+    printError(result.error());
+}
+\end{lstlisting}
+
+This solution solves a problem with uninitialized value because all variables are initialized in place. This solution also enables to track some errors more easily. We can call std::terminate() inside data() method when someone is calling data() method when an error occurred.
+
+\section{Benchmarking}
+In this section we will show the results of benchmarking of each solution.\newline
+All source code used for this benchmarking are available in our testing repository: \url{https://github.com/microHAL/benchmarking/tree/master/resultTester}
+Benchmark source code is available on github: todo\newline
+In table \ref{tab:memoryUsage} we are presenting a section usage of different implementation. We tested following functions:
+\begin{lstlisting}
+Error functionReturningUint8_t(uint8_t &data);
+uint8_t functionReturningUint8_t(Error *data);
+Result functionReturningUint8_t();
+\end{lstlisting}
+
+All implementations were tested when returning functions were present in the same translation unit and in separate translation units. As you can see a method with \textbf{Result} class took less code space. All variants was build with the same compiler settings.\newline\newline
+\textbf{todo adds compiler invocation command and compiler version, best would be to do this automatically from python}
+\newline\newline
+
+
+
+\begin{table}[!h]
+\centering
+\caption{Microconrtoller memory usage.\label{tab:memoryUsage}}
+\pgfplotstableread[col sep=comma,trim cells=true]{size.txt}\loadedtable
+\pgfplotstabletypeset[
+	set thousands separator={\,},
+	col sep=&,
+	row sep=\\,
+	columns={implementation,translation unit,bss,data,text,dec},
+	column type/.add={|}{},% results in ’|c’
+	assign column name/.style={/pgfplots/table/column name={\textbf{#1}}},			
+	every head row/.style={before row={
+		\hline		
+		\multicolumn{2}{|c|}{\textbf{Test configuration}} & \multicolumn{4}{c|}{\textbf{Section size}}\\
+		\hline
+		},
+		after row=\hline
+	},
+	every last row/.style={after row=\hline},
+	every last column/.style={column type/.add={}{|}},
+	columns/implementation/.style={
+		string type,
+		assign cell content/.code={
+			\ifnum\pgfplotstablerow=0
+				\pgfkeyssetvalue{/pgfplots/table/@cell content}{\multirow{2}{*}{##1}}%
+			\fi		
+			\ifnum\pgfplotstablerow=2
+				\pgfkeyssetvalue{/pgfplots/table/@cell content}{\multirow{2}{*}{##1}}%
+			\fi	
+			\ifnum\pgfplotstablerow=4
+				\pgfkeyssetvalue{/pgfplots/table/@cell content}{\multirow{2}{*}{##1}}%
+			\fi	
+		},
+	},
+	columns/translation unit/.style={string type},
+	every even row/.style={before row={\hline}},%\rowcolor[gray]{0.9}}},
+]\loadedtable
+\end{table}
+
+
+
+\begin{figure}[h!]
+\begin{tikzpicture}
+\begin{axis}[
+  width=\linewidth, % Scale the plot to \linewidth
+%  x tick label style={
+%  /pgf/number format/1000 sep=},
+  title=Section usage for the same translation unit,
+  ylabel=section size,
+  y unit=\si{\byte},
+  flexible xticklabels from table={same_size.csv}{impl}{col sep=comma},
+  xticklabel style={text height=1.5ex},
+  xtick=data,
+  enlarge x limits=0.3,
+  nodes near coords,
+  nodes near coords align={vertical},
+%  enlargelimits=0.15,
+  legend style={at={(0.5,-0.15)},
+  anchor=north,legend columns=-1},
+  ybar=5pt,
+  bar width=15pt,
+]
+\addplot table[x expr=\coordindex,y=data]{\datatable};
+\addplot table[x expr=\coordindex,y=bss]{\datatable};
+\addplot table[x expr=\coordindex,y=text]{\datatable};
+\legend{.data, .bss, .text}
+\end{axis}
+\end{tikzpicture}
+\caption{Dependency betwen error return metode implementation and each section usage.\label{fig:sameTranslationunit}}
+\end{figure}
+
+\begin{figure}[h!]
+\begin{tikzpicture}
+\begin{axis}[
+  width=\linewidth,
+  title=Section usage for the separate translation units,
+  ylabel=section size,
+  y unit=\si{\byte},
+  flexible xticklabels from table={separate_size.csv}{impl}{col sep=comma},
+  xticklabel style={text height=1.5ex},
+  xtick=data,
+  enlarge x limits=0.3,
+  nodes near coords,
+  nodes near coords align={vertical},
+  legend style={at={(0.5,-0.15)},
+  anchor=north,legend columns=-1},
+  ybar=5pt,
+  bar width=15pt,
+]
+\addplot table[x expr=\coordindex,y=data]{\datatableSeparate};
+\addplot table[x expr=\coordindex,y=bss]{\datatableSeparate};
+\addplot table[x expr=\coordindex,y=text]{\datatableSeparate};
+\legend{.data, .bss, .text}
+\end{axis}
+\end{tikzpicture}
+\caption{Dependency betwen error return metode implementation and each section usage in separate translation units.\label{fig:separateTranslationunit}}
+\end{figure}
+
+\end{document}
