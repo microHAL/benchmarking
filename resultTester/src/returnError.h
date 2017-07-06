@@ -43,38 +43,39 @@
  */
 #include <cstdint>
 
+#define ADDRESS 0x20000000
 /* **************************************************************************************************************************************************
  * CLASS
  */
 class Test {
  public:
-  enum class Error { None, Serious };
+  enum class Error : uint8_t { None, Serious };
 
 #if !defined(TEST_DIFFERENT_TRANSATION_UNIT)
   Error functionReturningUint8_t(uint8_t &data) {
-    data = *((uint8_t *)0x156884);
-    if (data > 10.0) return Error::Serious;
+    data = *((uint8_t *)ADDRESS);
+    if (data > 100) return Error::Serious;
 
     return Error::None;
   }
 
   Error functionReturningUint32_t(uint32_t &data) {
-    data = *((uint32_t *)0x156884);
-    if (data > 10.0) return Error::Serious;
+    data = *((uint32_t *)ADDRESS);
+    if (data > 100) return Error::Serious;
 
     return Error::None;
   }
 
   Error functionReturningUint64_t(uint64_t &data) {
-    data = *((uint64_t *)0x156884);
-    if (data > 10.0) return Error::Serious;
+    data = *((uint64_t *)ADDRESS);
+    if (data > 100) return Error::Serious;
 
     return Error::None;
   }
 
   Error functionReturningFloat(float &data) {
-    data = *((float *)0x156884);
-    if (data > 10.0) return Error::Serious;
+    data = *((float *)ADDRESS);
+    if (data > 100) return Error::Serious;
 
     return Error::None;
   }

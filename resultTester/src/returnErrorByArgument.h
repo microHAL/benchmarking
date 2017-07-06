@@ -47,16 +47,17 @@
  */
 
 #include <cstdint>
+#define ADDRESS 0x20000000
 
 class Test {
  public:
-  enum class Error { None, Serious };
+  enum class Error : uint8_t { None, Serious };
 
 #if !defined(TEST_DIFFERENT_TRANSATION_UNIT)
   uint8_t functionReturningUint8_t(Error *error) {
-    uint8_t data = *((uint8_t *)0x156884);
+    uint8_t data = *((uint8_t *)ADDRESS);
     if (error) {
-      if (data > 10.0)
+      if (data > 100)
         *error = Error::Serious;
       else
         *error = Error::None;
@@ -66,9 +67,9 @@ class Test {
   }
 
   uint32_t functionReturningUint32_t(Error *error) {
-    uint32_t data = *((uint64_t *)0x156884);
+    uint32_t data = *((uint64_t *)ADDRESS);
     if (error) {
-      if (data > 10.0)
+      if (data > 100)
         *error = Error::Serious;
       else
         *error = Error::None;
@@ -78,9 +79,9 @@ class Test {
   }
 
   uint64_t functionReturningUint64_t(Error *error) {
-    uint64_t data = *((uint64_t *)0x156884);
+    uint64_t data = *((uint64_t *)ADDRESS);
     if (error) {
-      if (data > 10.0)
+      if (data > 100)
         *error = Error::Serious;
       else
         *error = Error::None;
@@ -90,9 +91,9 @@ class Test {
   }
 
   float functionReturningFloat(Error *error) {
-    float data = *((float *)0x156884);
+    float data = *((float *)ADDRESS);
     if (error) {
-      if (data > 10.0)
+      if (data > 100)
         *error = Error::Serious;
       else
         *error = Error::None;

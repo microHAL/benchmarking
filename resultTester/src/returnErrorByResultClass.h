@@ -41,40 +41,56 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-
-/* **************************************************************************************************************************************************
- * CLASS
- */
 #include <cstdint>
 #include "result.h"
 
+#define ADDRESS 0x20000000
+/* **************************************************************************************************************************************************
+ * CLASS
+ */
 class Test {
  public:
-  enum class Error { None, Serious };
+  enum class Error : uint8_t { None, Serious };
 
 #if !defined(TEST_DIFFERENT_TRANSATION_UNIT)
   auto functionReturningUint8_t() {
-    uint8_t data = *((uint8_t *)0x156884);
+    uint8_t data = *((uint8_t *)ADDRESS);
 
-    return Result<Error, uint8_t>{data};
+    if (data > 100) {
+      return Result<Error, uint8_t>{data};
+    } else {
+      return Result<Error, uint8_t>{Error::Serious};
+    }
   }
 
   auto functionReturningUint32_t() {
-    uint32_t data = *((uint32_t *)0x156884);
+    uint32_t data = *((uint32_t *)ADDRESS);
 
-    return Result<Error, uint32_t>{data};
+    if (data > 100) {
+      return Result<Error, uint32_t>{data};
+    } else {
+      return Result<Error, uint32_t>{Error::Serious};
+    }
   }
 
   auto functionReturningUint64_t() {
-    uint64_t data = *((uint64_t *)0x156884);
+    uint64_t data = *((uint64_t *)ADDRESS);
 
-    return Result<Error, uint64_t>{data};
+    if (data > 100) {
+      return Result<Error, uint64_t>{data};
+    } else {
+      return Result<Error, uint64_t>{Error::Serious};
+    }
   }
 
   auto functionReturningFloat() {
-    float data = *((float *)0x156884);
+    float data = *((float *)ADDRESS);
 
-    return Result<Error, float>{data};
+    if (data > 100) {
+      return Result<Error, float>{data};
+    } else {
+      return Result<Error, float>{Error::Serious};
+    }
   }
 #else
   Result<Error, uint8_t> functionReturningUint8_t();

@@ -1,4 +1,4 @@
-\documentclass{article}
+git \documentclass{article}
 
 \usepackage[binary-units=true]{siunitx}
 \usepackage{tikz} % To generate the plot from csv
@@ -293,4 +293,56 @@ All implementations were tested when returning functions were present in the sam
 \caption{Dependency betwen error return metode implementation and each section usage in separate translation units.\label{fig:separateTranslationunit}}
 \end{figure}
 
+\subsection{Performance test}
+\begin{figure}[h!]
+\begin{tikzpicture}
+\begin{axis}[
+  width=\linewidth, % Scale the plot to \linewidth
+%  x tick label style={
+%  /pgf/number format/1000 sep=},
+  title=Section usage for the same translation unit,
+  ylabel=number of cycles,
+%  y unit=\si{\byte},
+  flexible xticklabels from table={speedSame.csv}{impl}{col sep=comma},
+  xticklabel style={text height=1.5ex},
+  xtick=data,
+  enlarge x limits=0.3,
+  nodes near coords,
+  nodes near coords align={vertical},
+%  enlargelimits=0.15,
+  legend style={at={(0.5,-0.15)},
+  anchor=north,legend columns=-1},
+  ybar=5pt,
+  bar width=15pt,
+]
+\addplot table[x expr=\coordindex,,y=cycles,col sep=comma] {speedSame.csv};
+\end{axis}
+\end{tikzpicture}
+\caption{Average number of cycles in same translation unit.\label{fig:speedSameTranslationunit}}
+\end{figure}
+
+\begin{figure}[h!]
+\begin{tikzpicture}
+\begin{axis}[
+  width=\linewidth,
+  title=Section usage for the separate translation units,
+  ylabel=cycles count,
+%  y unit=\si{\byte},
+  flexible xticklabels from table={speedSeparate.csv}{impl}{col sep=comma},
+  xticklabel style={text height=1.5ex},
+  xtick=data,
+  enlarge x limits=0.3,
+  nodes near coords,
+  nodes near coords align={vertical},
+  legend style={at={(0.5,-0.15)},
+  anchor=north,legend columns=-1},
+  ybar=5pt,
+  bar width=15pt,
+]
+\addplot table[x expr=\coordindex,y=cycles,col sep=comma] {speedSeparate.csv};
+%\legend{.data, .bss, .text}
+\end{axis}
+\end{tikzpicture}
+\caption{Average cycles count in separate translation units.\label{fig:speedSeparateTranslationunit}}
+\end{figure}
 \end{document}

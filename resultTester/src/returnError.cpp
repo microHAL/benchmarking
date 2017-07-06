@@ -44,29 +44,29 @@
 
 #if defined(TEST_DIFFERENT_TRANSATION_UNIT)
 Test::Error Test::functionReturningUint8_t(uint8_t &data) {
-  data = *((uint8_t *)0x156884);
-  if (data > 10.0) return Error::Serious;
+  data = *((uint8_t *)ADDRESS);
+  if (data > 100) return Error::Serious;
 
   return Error::None;
 }
 
 Test::Error Test::functionReturningUint32_t(uint32_t &data) {
-  data = *((uint32_t *)0x156884);
-  if (data > 10.0) return Error::Serious;
+  data = *((uint32_t *)ADDRESS);
+  if (data > 100) return Error::Serious;
 
   return Error::None;
 }
 
 Test::Error Test::functionReturningUint64_t(uint64_t &data) {
-  data = *((uint64_t *)0x156884);
-  if (data > 10.0) return Error::Serious;
+  data = *((uint64_t *)ADDRESS);
+  if (data > 100) return Error::Serious;
 
   return Error::None;
 }
 
 Test::Error Test::functionReturningFloat(float &data) {
-  data = *((float *)0x156884);
-  if (data > 10.0) return Error::Serious;
+  data = *((float *)ADDRESS);
+  if (data > 100) return Error::Serious;
 
   return Error::None;
 }

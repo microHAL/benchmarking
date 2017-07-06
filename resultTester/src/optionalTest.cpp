@@ -5,8 +5,8 @@
  * @brief
  *
  * @authors    pawel
- * created on: 20-06-2017
- * last modification: 20-06-2017
+ * created on: 22-06-2017
+ * last modification: 22-06-2017
  *
  * @copyright Copyright (c) 2017, microHAL
  * All rights reserved.
@@ -39,56 +39,45 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#if defined(ERROR_BY_ARGUMENT_TEST)
-#include "returnErrorByArgument.h"
 
+#if defined(OPTIONAL_TEST)
 #if defined(TEST_DIFFERENT_TRANSATION_UNIT)
-uint8_t Test::functionReturningUint8_t(Test::Error *error) {
+#include "optionalTest.h"
+
+Test::optional<uint8_t> Test::functionReturningUint8_t() {
   uint8_t data = *((uint8_t *)ADDRESS);
-  if (error) {
-    if (data > 100)
-      *error = Error::Serious;
-    else
-      *error = Error::None;
-  }
 
-  return data;
+  if (data > 100)
+    return optional<uint8_t>{data};
+  else
+    return optional<uint8_t>{};
 }
 
-uint32_t Test::functionReturningUint32_t(Test::Error *error) {
-  uint32_t data = *((uint64_t *)ADDRESS);
-  if (error) {
-    if (data > 100)
-      *error = Error::Serious;
-    else
-      *error = Error::None;
-  }
+Test::optional<uint32_t> Test::functionReturningUint32_t() {
+  uint32_t data = *((uint32_t *)ADDRESS);
 
-  return data;
+  if (data > 100)
+    return optional<uint32_t>{data};
+  else
+    return optional<uint32_t>{};
 }
 
-uint64_t Test::functionReturningUint64_t(Test::Error *error) {
+Test::optional<uint64_t> Test::functionReturningUint64_t() {
   uint64_t data = *((uint64_t *)ADDRESS);
-  if (error) {
-    if (data > 100)
-      *error = Error::Serious;
-    else
-      *error = Error::None;
-  }
 
-  return data;
+  if (data > 100)
+    return optional<uint64_t>{data};
+  else
+    return optional<uint64_t>{};
 }
 
-float Test::functionReturningFloat(Test::Error *error) {
+Test::optional<float> Test::functionReturningFloat() {
   float data = *((float *)ADDRESS);
-  if (error) {
-    if (data > 100)
-      *error = Error::Serious;
-    else
-      *error = Error::None;
-  }
 
-  return data;
+  if (data > 100)
+    return optional<float>{data};
+  else
+    return optional<float>{};
 }
 #endif
 #endif

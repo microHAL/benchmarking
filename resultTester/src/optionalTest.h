@@ -5,8 +5,8 @@
  * @brief
  *
  * @authors    pawel
- * created on: 13-06-2017
- * last modification: 13-06-2017
+ * created on: 22-06-2017
+ * last modification: 22-06-2017
  *
  * @copyright Copyright (c) 2017, microHAL
  * All rights reserved.
@@ -36,59 +36,69 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_RESULT_H_
-#define _MICROHAL_RESULT_H_
+#ifndef _MICROHAL_OPTIONALTEST_H_
+#define _MICROHAL_OPTIONALTEST_H_
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
+#if defined(OPTIONAL_TEST)
+#include <cstdint>
+#include <experimental/optional>
+
+#define ADDRESS 0x20000000
 
 /* **************************************************************************************************************************************************
  * CLASS
  */
+class Test {
+  template <typename T>
+  using optional = std::experimental::optional<T>;
 
-template <typename Error, typename Data>
-class Result {
  public:
-  constexpr explicit Result(Data data) : _error(Error::None), data(data){};
-  // constexpr Result(Data &&data) : _error(Error::None), data(data) {};
-  constexpr explicit Result(Error error) : _error(error){};
+  enum class Error : uint8_t { None, Serious };
 
-  constexpr operator bool() const { return _error == Error::None; }
+#if !defined(TEST_DIFFERENT_TRANSATION_UNIT)
+  auto functionReturningUint8_t() {
+    uint8_t data = *((uint8_t *)ADDRESS);
 
-  Error error() const { return _error; }
+    if (data > 100)
+      return optional<uint8_t>{data};
+    else
+      return optional<uint8_t>{};
+  }
 
-  constexpr Data* operator->() { return &data; }
-  constexpr const Data* operator->() const { return &data; }
-  constexpr Data& operator*() { return data; }
-  constexpr const Data& operator*() const { return data; }
-  // constexpr Data && operator*() && { return std::forward(data); }
-  // constexpr const Data && operator*() const && { return std::forward(data); }
+  auto functionReturningUint32_t() {
+    uint32_t data = *((uint32_t *)ADDRESS);
 
- private:
-  Data data;
-  Error _error = !Error::None;
+    if (data > 100)
+      return optional<uint32_t>{data};
+    else
+      return optional<uint32_t>{};
+  }
+
+  auto functionReturningUint64_t() {
+    uint64_t data = *((uint64_t *)ADDRESS);
+
+    if (data > 100)
+      return optional<uint64_t>{data};
+    else
+      return optional<uint64_t>{};
+  }
+
+  auto functionReturningFloat() {
+    float data = *((float *)ADDRESS);
+
+    if (data > 100)
+      return optional<float>{data};
+    else
+      return optional<float>{};
+  }
+#else
+  optional<uint8_t> functionReturningUint8_t();
+  optional<uint32_t> functionReturningUint32_t();
+  optional<uint64_t> functionReturningUint64_t();
+  optional<float> functionReturningFloat();
+#endif
 };
-
-template <typename Data>
-class Result<bool, Data> {
- public:
-  constexpr explicit Result(Data data) : dataValid(true), data(data){};
-  constexpr explicit Result() : dataValid(false){};
-  constexpr explicit Result(bool dataValid, Data data)
-      : dataValid(dataValid), data(data){};
-
-  constexpr operator bool() const { return dataValid; }
-
-  constexpr Data* operator->() { return &data; }
-  constexpr const Data* operator->() const { return &data; }
-  constexpr Data& operator*() { return data; }
-  constexpr const Data& operator*() const { return data; }
-  // constexpr Data && operator*() && { return std::forward(data); }
-  // constexpr const Data && operator*() const && { return std::forward(data); }
-
- private:
-  bool dataValid;
-  Data data;
-};
-
-#endif  // _MICROHAL_RESULT_H_
+#endif
+#endif  // _MICROHAL_OPTIONALTEST_H_

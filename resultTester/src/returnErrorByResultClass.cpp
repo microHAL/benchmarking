@@ -44,27 +44,43 @@
 
 #if defined(TEST_DIFFERENT_TRANSATION_UNIT)
 Result<Test::Error, uint8_t> Test::functionReturningUint8_t() {
-  uint8_t data = *((uint8_t *)0x156884);
+  uint8_t data = *((uint8_t *)ADDRESS);
 
-  return Result<Error, uint8_t>{data};
+  if (data > 100) {
+    return Result<Error, uint8_t>{data};
+  } else {
+    return Result<Error, uint8_t>{Error::Serious};
+  }
 }
 
 Result<Test::Error, uint32_t> Test::functionReturningUint32_t() {
-  uint32_t data = *((uint32_t *)0x156884);
+  uint32_t data = *((uint32_t *)ADDRESS);
 
-  return Result<Error, uint32_t>{data};
+  if (data > 100) {
+    return Result<Error, uint32_t>{data};
+  } else {
+    return Result<Error, uint32_t>{Error::Serious};
+  }
 }
 
 Result<Test::Error, uint64_t> Test::functionReturningUint64_t() {
-  uint64_t data = *((uint64_t *)0x156884);
+  uint64_t data = *((uint64_t *)ADDRESS);
 
-  return Result<Error, uint64_t>{data};
+  if (data > 100) {
+    return Result<Error, uint64_t>{data};
+  } else {
+    return Result<Error, uint64_t>{Error::Serious};
+  }
 }
 
 Result<Test::Error, float> Test::functionReturningFloat() {
-  float data = *((float *)0x156884);
+  float data = *((float *)ADDRESS);
 
-  return Result<Error, float>{data};
+  if (data > 100) {
+    return Result<Error, float>{data};
+  } else {
+    return Result<Error, float>{Error::Serious};
+  }
 }
 #endif
 #endif

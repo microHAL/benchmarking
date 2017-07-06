@@ -40,6 +40,8 @@
  * INCLUDES
  */
 #include <cstdio>
+#include <experimental/optional>
+
 #if defined(ERROR_BY_ARGUMENT_TEST)
 #include "returnErrorByArgument.h"
 #endif
