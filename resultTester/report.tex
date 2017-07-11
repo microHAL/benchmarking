@@ -193,12 +193,12 @@ All implementations were tested when returning functions were present in the sam
 \textbf{todo adds compiler invocation command and compiler version, best would be to do this automatically from python}
 \newline\newline
 
-
+\subsection{Code Size testing}
 
 \begin{table}[!h]
 \centering
 \caption{Microconrtoller memory usage.\label{tab:memoryUsage}}
-\pgfplotstableread[col sep=comma,trim cells=true]{size.txt}\loadedtable
+\pgfplotstableread[col sep=comma,trim cells=true]{uint8t_size.txt}\loadedtable
 \pgfplotstabletypeset[
 	set thousands separator={\,},
 	col sep=&,
@@ -234,7 +234,8 @@ All implementations were tested when returning functions were present in the sam
 ]\loadedtable
 \end{table}
 
-
+\FloatBarrier
+\subsubsection{Code usage for uint8\_t}
 
 \begin{figure}[h!]
 \begin{tikzpicture}
@@ -257,9 +258,9 @@ All implementations were tested when returning functions were present in the sam
   ybar=5pt,
   bar width=15pt,
 ]
-\addplot table[x expr=\coordindex,y=data]{\datatable};
-\addplot table[x expr=\coordindex,y=bss]{\datatable};
-\addplot table[x expr=\coordindex,y=text]{\datatable};
+\addplot table[x expr=\coordindex,y=data,col sep=comma]{uint8t_same_size.csv};
+\addplot table[x expr=\coordindex,y=bss,col sep=comma]{uint8t_same_size.csv};
+\addplot table[x expr=\coordindex,y=text,col sep=comma]{uint8t_same_size.csv};
 \legend{.data, .bss, .text}
 \end{axis}
 \end{tikzpicture}
@@ -284,9 +285,189 @@ All implementations were tested when returning functions were present in the sam
   ybar=5pt,
   bar width=15pt,
 ]
-\addplot table[x expr=\coordindex,y=data]{\datatableSeparate};
-\addplot table[x expr=\coordindex,y=bss]{\datatableSeparate};
-\addplot table[x expr=\coordindex,y=text]{\datatableSeparate};
+\addplot table[x expr=\coordindex,y=data,col sep=comma]{uint8t_separate_size.csv};
+\addplot table[x expr=\coordindex,y=bss,col sep=comma]{uint8t_separate_size.csv};
+\addplot table[x expr=\coordindex,y=text,col sep=comma]{uint8t_separate_size.csv};
+\legend{.data, .bss, .text}
+\end{axis}
+\end{tikzpicture}
+\caption{Dependency betwen error return metode implementation and each section usage in separate translation units.\label{fig:separateTranslationunit}}
+\end{figure}
+
+\FloatBarrier
+\subsubsection{Code usage for uint32\_t}
+
+\begin{figure}[h!]
+\begin{tikzpicture}
+\begin{axis}[
+  width=\linewidth, % Scale the plot to \linewidth
+%  x tick label style={
+%  /pgf/number format/1000 sep=},
+  title=Section usage for the same translation unit,
+  ylabel=section size,
+  y unit=\si{\byte},
+  flexible xticklabels from table={uint32t_same_size.csv}{impl}{col sep=comma},
+  xticklabel style={text height=1.5ex},
+  xtick=data,
+  enlarge x limits=0.3,
+  nodes near coords,
+  nodes near coords align={vertical},
+%  enlargelimits=0.15,
+  legend style={at={(0.5,-0.15)},
+  anchor=north,legend columns=-1},
+  ybar=5pt,
+  bar width=15pt,
+]
+\addplot table[x expr=\coordindex,y=data,col sep=comma]{uint32t_same_size.csv};
+\addplot table[x expr=\coordindex,y=bss,col sep=comma]{uint32t_same_size.csv};
+\addplot table[x expr=\coordindex,y=text,col sep=comma]{uint32t_same_size.csv};
+\legend{.data, .bss, .text}
+\end{axis}
+\end{tikzpicture}
+\caption{Dependency betwen error return metode implementation and each section usage.\label{fig:sameTranslationunit}}
+\end{figure}
+
+\begin{figure}[h!]
+\begin{tikzpicture}
+\begin{axis}[
+  width=\linewidth,
+  title=Section usage for the separate translation units,
+  ylabel=section size,
+  y unit=\si{\byte},
+  flexible xticklabels from table={uint32t_separate_size.csv}{impl}{col sep=comma},
+  xticklabel style={text height=1.5ex},
+  xtick=data,
+  enlarge x limits=0.3,
+  nodes near coords,
+  nodes near coords align={vertical},
+  legend style={at={(0.5,-0.15)},
+  anchor=north,legend columns=-1},
+  ybar=5pt,
+  bar width=15pt,
+]
+\addplot table[x expr=\coordindex,y=data,col sep=comma]{uint32t_separate_size.csv};
+\addplot table[x expr=\coordindex,y=bss,col sep=comma]{uint32t_separate_size.csv};
+\addplot table[x expr=\coordindex,y=text,col sep=comma]{uint32t_separate_size.csv};
+\legend{.data, .bss, .text}
+\end{axis}
+\end{tikzpicture}
+\caption{Dependency betwen error return metode implementation and each section usage in separate translation units.\label{fig:separateTranslationunit}}
+\end{figure}
+
+\FloatBarrier
+\subsubsection{Code usage for uint64\_t}
+
+\begin{figure}[h!]
+\begin{tikzpicture}
+\begin{axis}[
+  width=\linewidth, % Scale the plot to \linewidth
+%  x tick label style={
+%  /pgf/number format/1000 sep=},
+  title=Section usage for the same translation unit,
+  ylabel=section size,
+  y unit=\si{\byte},
+  flexible xticklabels from table={uint32t_same_size.csv}{impl}{col sep=comma},
+  xticklabel style={text height=1.5ex},
+  xtick=data,
+  enlarge x limits=0.3,
+  nodes near coords,
+  nodes near coords align={vertical},
+%  enlargelimits=0.15,
+  legend style={at={(0.5,-0.15)},
+  anchor=north,legend columns=-1},
+  ybar=5pt,
+  bar width=15pt,
+]
+\addplot table[x expr=\coordindex,y=data,col sep=comma]{uint64t_same_size.csv};
+\addplot table[x expr=\coordindex,y=bss,col sep=comma]{uint64t_same_size.csv};
+\addplot table[x expr=\coordindex,y=text,col sep=comma]{uint64t_same_size.csv};
+\legend{.data, .bss, .text}
+\end{axis}
+\end{tikzpicture}
+\caption{Dependency betwen error return metode implementation and each section usage.\label{fig:sameTranslationunit}}
+\end{figure}
+
+\begin{figure}[h!]
+\begin{tikzpicture}
+\begin{axis}[
+  width=\linewidth,
+  title=Section usage for the separate translation units,
+  ylabel=section size,
+  y unit=\si{\byte},
+  flexible xticklabels from table={uint64t_separate_size.csv}{impl}{col sep=comma},
+  xticklabel style={text height=1.5ex},
+  xtick=data,
+  enlarge x limits=0.3,
+  nodes near coords,
+  nodes near coords align={vertical},
+  legend style={at={(0.5,-0.15)},
+  anchor=north,legend columns=-1},
+  ybar=5pt,
+  bar width=15pt,
+]
+\addplot table[x expr=\coordindex,y=data,col sep=comma]{uint64t_separate_size.csv};
+\addplot table[x expr=\coordindex,y=bss,col sep=comma]{uint64t_separate_size.csv};
+\addplot table[x expr=\coordindex,y=text,col sep=comma]{uint64t_separate_size.csv};
+\legend{.data, .bss, .text}
+\end{axis}
+\end{tikzpicture}
+\caption{Dependency betwen error return metode implementation and each section usage in separate translation units.\label{fig:separateTranslationunit}}
+\end{figure}
+
+\FloatBarrier
+\subsubsection{Code usage for float}
+
+\begin{figure}[h!]
+\begin{tikzpicture}
+\begin{axis}[
+  width=\linewidth, % Scale the plot to \linewidth
+%  x tick label style={
+%  /pgf/number format/1000 sep=},
+  title=Section usage for the same translation unit,
+  ylabel=section size,
+  y unit=\si{\byte},
+  flexible xticklabels from table={float_same_size.csv}{impl}{col sep=comma},
+  xticklabel style={text height=1.5ex},
+  xtick=data,
+  enlarge x limits=0.3,
+  nodes near coords,
+  nodes near coords align={vertical},
+%  enlargelimits=0.15,
+  legend style={at={(0.5,-0.15)},
+  anchor=north,legend columns=-1},
+  ybar=5pt,
+  bar width=15pt,
+]
+\addplot table[x expr=\coordindex,y=data,col sep=comma]{float_same_size.csv};
+\addplot table[x expr=\coordindex,y=bss,col sep=comma]{float_same_size.csv};
+\addplot table[x expr=\coordindex,y=text,col sep=comma]{float_same_size.csv};
+\legend{.data, .bss, .text}
+\end{axis}
+\end{tikzpicture}
+\caption{Dependency betwen error return metode implementation and each section usage.\label{fig:sameTranslationunit}}
+\end{figure}
+
+\begin{figure}[h!]
+\begin{tikzpicture}
+\begin{axis}[
+  width=\linewidth,
+  title=Section usage for the separate translation units,
+  ylabel=section size,
+  y unit=\si{\byte},
+  flexible xticklabels from table={uint64t_separate_size.csv}{impl}{col sep=comma},
+  xticklabel style={text height=1.5ex},
+  xtick=data,
+  enlarge x limits=0.3,
+  nodes near coords,
+  nodes near coords align={vertical},
+  legend style={at={(0.5,-0.15)},
+  anchor=north,legend columns=-1},
+  ybar=5pt,
+  bar width=15pt,
+]
+\addplot table[x expr=\coordindex,y=data,col sep=comma]{uint64t_separate_size.csv};
+\addplot table[x expr=\coordindex,y=bss,col sep=comma]{uint64t_separate_size.csv};
+\addplot table[x expr=\coordindex,y=text,col sep=comma]{uint64t_separate_size.csv};
 \legend{.data, .bss, .text}
 \end{axis}
 \end{tikzpicture}
@@ -300,49 +481,57 @@ All implementations were tested when returning functions were present in the sam
   width=\linewidth, % Scale the plot to \linewidth
 %  x tick label style={
 %  /pgf/number format/1000 sep=},
-  title=Section usage for the same translation unit,
+  title=Cycles count for the same translation unit,
   ylabel=number of cycles,
 %  y unit=\si{\byte},
-  flexible xticklabels from table={speedSame.csv}{impl}{col sep=comma},
+  flexible xticklabels from table={uint8t_speedSame.csv}{impl}{col sep=comma},
   xticklabel style={text height=1.5ex},
   xtick=data,
-  enlarge x limits=0.3,
+  enlarge x limits=0.2,
   nodes near coords,
   nodes near coords align={vertical},
 %  enlargelimits=0.15,
   legend style={at={(0.5,-0.15)},
   anchor=north,legend columns=-1},
-  ybar=5pt,
-  bar width=15pt,
+  ybar=2pt,
+%  bar width=15pt,
 ]
-\addplot table[x expr=\coordindex,,y=cycles,col sep=comma] {speedSame.csv};
+\addplot table[x expr=\coordindex,y=cycles,col sep=comma] {uint8t_speedSame.csv};
+\addplot table[x expr=\coordindex,y=cycles,col sep=comma] {uint32t_speedSame.csv};
+\addplot table[x expr=\coordindex,y=cycles,col sep=comma] {uint64t_speedSame.csv};
+\addplot table[x expr=\coordindex,y=cycles,col sep=comma] {float_speedSame.csv};
+\legend{uint8\_t, uint32\_t, uint64\_t, float}
 \end{axis}
 \end{tikzpicture}
-\caption{Average number of cycles in same translation unit.\label{fig:speedSameTranslationunit}}
+\caption{Average number of cycles in same translation unit.\label{fig:uint8tspeedSameTranslationunit}}
 \end{figure}
 
 \begin{figure}[h!]
 \begin{tikzpicture}
 \begin{axis}[
   width=\linewidth,
-  title=Section usage for the separate translation units,
+  title=Cycles count for the separate translation units,
   ylabel=cycles count,
 %  y unit=\si{\byte},
-  flexible xticklabels from table={speedSeparate.csv}{impl}{col sep=comma},
+  flexible xticklabels from table={uint8t_speedSeparate.csv}{impl}{col sep=comma},
   xticklabel style={text height=1.5ex},
   xtick=data,
-  enlarge x limits=0.3,
+  enlarge x limits=0.2,
   nodes near coords,
   nodes near coords align={vertical},
   legend style={at={(0.5,-0.15)},
   anchor=north,legend columns=-1},
-  ybar=5pt,
-  bar width=15pt,
+  ybar=2pt,
+%  bar width=15pt,
 ]
-\addplot table[x expr=\coordindex,y=cycles,col sep=comma] {speedSeparate.csv};
-%\legend{.data, .bss, .text}
+\addplot table[x expr=\coordindex,y=cycles,col sep=comma] {uint8t_speedSeparate.csv};
+\addplot table[x expr=\coordindex,y=cycles,col sep=comma] {uint32t_speedSeparate.csv};
+\addplot table[x expr=\coordindex,y=cycles,col sep=comma] {uint64t_speedSeparate.csv};
+\addplot table[x expr=\coordindex,y=cycles,col sep=comma] {float_speedSeparate.csv};
+\legend{uint8\_t, uint32\_t, uint64\_t, float}
 \end{axis}
 \end{tikzpicture}
-\caption{Average cycles count in separate translation units.\label{fig:speedSeparateTranslationunit}}
+\caption{Average cycles count in separate translation units.\label{fig:uint8tspeedSeparateTranslationunit}}
 \end{figure}
+
 \end{document}

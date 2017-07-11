@@ -28,10 +28,11 @@ def runLatexToPDF(filename):
 
 
 def buildConfiguration(configuration, define):
-	definesList = [['RESULT_TEST', define], ['RETURN_ERROR_TEST', define], ['OPTIONAL_TEST', define], ['ERROR_BY_ARGUMENT_TEST', define]]
+	definesList = [['RESULT_TEST'], ['RETURN_ERROR_TEST'], ['OPTIONAL_TEST'], ['ERROR_BY_ARGUMENT_TEST']]
 
 	sizeOutput = []
 	for defines in definesList:
+		defines = defines + define
 		sizeOutput.append(runEclipse(projectDir, 'resultTester/' + configuration, defines))
        
 	enabledSize = []
@@ -59,68 +60,82 @@ def saveTableFile(filename, dataFromSameUnit, dataFromSeparateUnit):
 			f.write(testName[i] + ',same,' + str(size['bss']) + ', ' + str(size['data']) + ', ' + str(size['text']) + ', ' + str(size['dec']) + '\n')
 			f.write(',separate,' + str(dataFromSeparateUnit[i]['bss']) + ', ' + str(dataFromSeparateUnit[i]['data']) + ', ' + str(dataFromSeparateUnit[i]['text']) + ', ' + str(dataFromSeparateUnit[i]['dec']) + '\n')
 
-def saveSpeedFile(filename, data, iterationsCount):
+def saveSpeedFile(filename, data):
 	with open(filename, 'w') as f:		
 		f.write('impl, cycles\n')
-		f.write('return, ' + str(data['return'] / iterationsCount) + '\n')
-		f.write('argument, ' + str(data['argument'] / iterationsCount) + '\n')
-		f.write('optional, ' + str(data['optional'] / iterationsCount) + '\n')
-		f.write('result, ' + str(data['result'] / iterationsCount) + '\n')
+		f.write('return, ' + str(data['return']) + '\n')
+		f.write('argument, ' + str(data['argument']) + '\n')
+		f.write('optional, ' + str(data['optional']) + '\n')
+		f.write('result, ' + str(data['result']) + '\n')
 
 
+def codeSizeStats(settings, filenamePrefix):
+	codeSizeSameUnit = buildConfiguration('Debug', [settings])
+	codeSizeSeparateUnit = buildConfiguration('Debug', ['TEST_DIFFERENT_TRANSATION_UNIT', settings])
+	saveFile(filenamePrefix + '_same_size.csv', codeSizeSameUnit)
+	saveFile(filenamePrefix + '_separate_size.csv', codeSizeSeparateUnit)
+	saveTableFile(filenamePrefix + '_size.txt', codeSizeSameUnit, codeSizeSeparateUnit)
 
-codeSizeSameUnit = buildConfiguration('Debug', None)
-codeSizeSeparateUnit = buildConfiguration('Debug', 'TEST_DIFFERENT_TRANSATION_UNIT')
-saveFile('same_size.csv', codeSizeSameUnit)
-saveFile('separate_size.csv', codeSizeSeparateUnit)
-saveTableFile('size.txt', codeSizeSameUnit, codeSizeSeparateUnit)
+codeSizeStats('UINT8T_TEST', 'uint8t')
+codeSizeStats('UINT32T_TEST', 'uint32t')
+codeSizeStats('UINT64T_TEST', 'uint64t')
+codeSizeStats('FLAOT_TEST', 'float')
 
 #run speed statistics
 #buildConfiguration('speedTest', None)
 #codeSizeSeparateUnit = buildConfiguration('speedTest', 'TEST_DIFFERENT_TRANSATION_UNIT')
-port = serial.Serial('/dev/ttyACM0', 115200, timeout=1)
+port = serial.Serial('/dev/ttyACM0', 115200, timeout=2)
 
-buildAndFlash('speedTest', ['RESULT_TEST'])
-result = port.read(1000)
-buildAndFlash('speedTest', ['RETURN_ERROR_TEST'])
-returnTest = port.read(1000)
-buildAndFlash('speedTest', ['OPTIONAL_TEST'])
-optional = port.read(1000)
-buildAndFlash('speedTest', ['ERROR_BY_ARGUMENT_TEST'])
-argument = port.read(1000)
+def performanceTest(settings, filenamePrefix):
+	iterationCount = 100
+	buildAndFlash('speedTest', ['RESULT_TEST', settings])
+	result = port.read(1000)
+	buildAndFlash('speedTest', ['RETURN_ERROR_TEST', settings])
+	returnTest = port.read(1000)
+	buildAndFlash('speedTest', ['OPTIONAL_TEST', settings])
+	optional = port.read(1000)
+	buildAndFlash('speedTest', ['ERROR_BY_ARGUMENT_TEST', settings])
+	argument = port.read(1000)
 
-buildAndFlash('speedTest', ['RESULT_TEST', 'TEST_DIFFERENT_TRANSATION_UNIT'])
-resultSeparate = port.read(1000)
-buildAndFlash('speedTest', ['RETURN_ERROR_TEST', 'TEST_DIFFERENT_TRANSATION_UNIT'])
-returnTestSeparate = port.read(1000)
-buildAndFlash('speedTest', ['OPTIONAL_TEST', 'TEST_DIFFERENT_TRANSATION_UNIT'])
-optionalSeparate = port.read(1000)
-buildAndFlash('speedTest', ['ERROR_BY_ARGUMENT_TEST', 'TEST_DIFFERENT_TRANSATION_UNIT'])
-argumentSeparate = port.read(1000)
+	buildAndFlash('speedTest', ['RESULT_TEST', 'TEST_DIFFERENT_TRANSATION_UNIT', settings])
+	resultSeparate = port.read(1000)
+	buildAndFlash('speedTest', ['RETURN_ERROR_TEST', 'TEST_DIFFERENT_TRANSATION_UNIT', settings])
+	returnTestSeparate = port.read(1000)
+	buildAndFlash('speedTest', ['OPTIONAL_TEST', 'TEST_DIFFERENT_TRANSATION_UNIT', settings])
+	optionalSeparate = port.read(1000)
+	buildAndFlash('speedTest', ['ERROR_BY_ARGUMENT_TEST', 'TEST_DIFFERENT_TRANSATION_UNIT', settings])
+	argumentSeparate = port.read(1000)
 
+	result = result.splitlines()[1]
+	returnTest = returnTest.splitlines()[1]
+	optional = optional.splitlines()[1]
+	argument = argument.splitlines()[1]
+	sameTranslationUnit = {'result' : int(result) / iterationCount, 'return' : int(returnTest) / iterationCount, 'optional' : int(optional) / iterationCount, 'argument' : int(argument) / iterationCount}
+	saveSpeedFile(filenamePrefix + '_speedSame.csv', sameTranslationUnit)	
 
-print result
-print returnTest
-print optional
-print argument
+	resultSeparate = resultSeparate.splitlines()[1]
+	returnTestSeparate = returnTestSeparate.splitlines()[1]
+	optionalSeparate = optionalSeparate.splitlines()[1]
+	argumentSeparate = argumentSeparate.splitlines()[1]
+	separateTranslationUnit = {'result' : int(resultSeparate) / iterationCount, 'return' : int(returnTestSeparate) / iterationCount, 'optional' : int(optionalSeparate) / iterationCount, 'argument' : int(argumentSeparate) / iterationCount}
+	saveSpeedFile(filenamePrefix + '_speedSeparate.csv', separateTranslationUnit)
+	
+	return [[result, returnTest, optional, argument], [resultSeparate, returnTestSeparate, optionalSeparate, argumentSeparate]]
 
-print resultSeparate
-print returnTestSeparate
-print optionalSeparate
-print argumentSeparate
+uint8 = performanceTest('UINT8T_TEST', 'uint8t')
+uint32 = performanceTest('UINT32T_TEST', 'uint32t')
+uint64 = performanceTest('UINT64T_TEST', 'uint64t')
+flo = performanceTest('FLOAT_TEST', 'float')
 
-result = result.splitlines()[1]
-returnTest = returnTest.splitlines()[1]
-optional = optional.splitlines()[1]
-argument = argument.splitlines()[1]
-sameTranslationUnit = {'result' : int(result), 'return' : int(returnTest), 'optional' : int(optional), 'argument' : int(argument)}
-saveSpeedFile('speedSame.csv', sameTranslationUnit, 1000)
+print uint8[0]
+print uint32[0]
+print uint64[0]
+print flo[0]
 
-resultSeparate = resultSeparate.splitlines()[1]
-returnTestSeparate = returnTestSeparate.splitlines()[1]
-optionalSeparate = optionalSeparate.splitlines()[1]
-argumentSeparate = argumentSeparate.splitlines()[1]
-separateTranslationUnit = {'result' : int(resultSeparate), 'return' : int(returnTestSeparate), 'optional' : int(optionalSeparate), 'argument' : int(argumentSeparate)}
-saveSpeedFile('speedSeparate.csv', separateTranslationUnit, 1000)
+print "\n"
+print uint8[1]
+print uint32[1]
+print uint64[1]
+print flo[1]
 
 runLatexToPDF(projectDir + '/report.tex')

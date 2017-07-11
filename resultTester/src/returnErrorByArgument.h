@@ -67,7 +67,7 @@ class Test {
   }
 
   uint32_t functionReturningUint32_t(Error *error) {
-    uint32_t data = *((uint64_t *)ADDRESS);
+    uint32_t data = *((uint32_t *)ADDRESS);
     if (error) {
       if (data > 100)
         *error = Error::Serious;

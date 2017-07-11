@@ -5,8 +5,8 @@
  * @brief
  *
  * @authors    pawel
- * created on: 20-06-2017
- * last modification: 20-06-2017
+ * created on: 12-07-2017
+ * last modification: 12-07-2017
  *
  * @copyright Copyright (c) 2017, microHAL
  * All rights reserved.
@@ -36,59 +36,16 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef _MICROHAL_FUNCTIONS_H_
+#define _MICROHAL_FUNCTIONS_H_
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#if defined(ERROR_BY_ARGUMENT_TEST)
-#include "returnErrorByArgument.h"
+#include <cstdint>
 
-#if defined(TEST_DIFFERENT_TRANSATION_UNIT)
-uint8_t Test::functionReturningUint8_t(Test::Error *error) {
-  uint8_t data = *((uint8_t *)ADDRESS);
-  if (error) {
-    if (data > 100)
-      *error = Error::Serious;
-    else
-      *error = Error::None;
-  }
+void dataFunc(uint8_t a);
+void dataFunc(uint32_t a);
+void dataFunc(uint64_t a);
+void dataFunc(float a);
 
-  return data;
-}
-
-uint32_t Test::functionReturningUint32_t(Test::Error *error) {
-  uint32_t data = *((uint32_t *)ADDRESS);
-  if (error) {
-    if (data > 100)
-      *error = Error::Serious;
-    else
-      *error = Error::None;
-  }
-
-  return data;
-}
-
-uint64_t Test::functionReturningUint64_t(Test::Error *error) {
-  uint64_t data = *((uint64_t *)ADDRESS);
-  if (error) {
-    if (data > 100)
-      *error = Error::Serious;
-    else
-      *error = Error::None;
-  }
-
-  return data;
-}
-
-float Test::functionReturningFloat(Test::Error *error) {
-  float data = *((float *)ADDRESS);
-  if (error) {
-    if (data > 100)
-      *error = Error::Serious;
-    else
-      *error = Error::None;
-  }
-
-  return data;
-}
-#endif
-#endif
+#endif  // _MICROHAL_FUNCTIONS_H_

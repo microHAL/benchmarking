@@ -66,54 +66,64 @@ int main() {
 #if defined(ERROR_BY_ARGUMENT_TEST)
   Test::Error error;
 
+#if defined(UINT8T_TEST)
   uint8_t u8 = test.functionReturningUint8_t(&error);
   if (error != Test::Error::None) {
   } else {
     printError(error);
   }
-
+#endif
+#if defined(UINT32T_TEST)
   uint32_t u32 = test.functionReturningUint32_t(&error);
   if (error != Test::Error::None) {
   } else {
     printError(error);
   }
-
+#endif
+#if defined(UINT64T_TEST)
   uint32_t u64 = test.functionReturningUint64_t(&error);
   if (error != Test::Error::None) {
   } else {
     printError(error);
   }
-
+#endif
+#if defined(FLOAT_TEST)
   float fl = test.functionReturningFloat(&error);
   if (error != Test::Error::None) {
   } else {
     printError(error);
   }
 #endif
+#endif
 
 #if defined(RETURN_ERROR_TEST)
+  Test::Error result;
+#if defined(UINT8T_TEST)
   uint8_t u8;
-  auto result = test.functionReturningUint8_t(u8);
+  result = test.functionReturningUint8_t(u8);
   if (result == Test::Error::None) {
     // printf("%d", u8_t);
   } else {
     printError(result);
   }
-
+#endif
+#if defined(UINT32T_TEST)
   uint32_t u32;
   result = test.functionReturningUint32_t(u32);
   if (result == Test::Error::None) {
   } else {
     printError(result);
   }
-
+#endif
+#if defined(UINT64T_TEST)
   uint64_t u64;
   result = test.functionReturningUint64_t(u64);
   if (result == Test::Error::None) {
   } else {
     printError(result);
   }
-
+#endif
+#if defined(FLOAT_TEST)
   float fl;
   result = test.functionReturningFloat(fl);
   if (result == Test::Error::None) {
@@ -121,50 +131,67 @@ int main() {
     printError(result);
   }
 #endif
+#endif
 
 #if defined(OPTIONAL_TEST)
+#if defined(UINT8T_TEST)
   if (auto result = test.functionReturningUint8_t()) {
     uint8_t tt = *result;
   } else {
     printError(Test::Error::Serious);
   }
+#endif
+#if defined(UINT32T_TEST)
   if (auto result = test.functionReturningUint32_t()) {
     uint32_t tt = *result;
   } else {
     printError(Test::Error::Serious);
   }
+#endif
+#if defined(UINT64T_TEST)
   if (auto result = test.functionReturningUint64_t()) {
     uint64_t tt = *result;
   } else {
     printError(Test::Error::Serious);
   }
+#endif
+#if defined(FLOAT_TEST)
   if (auto result = test.functionReturningFloat()) {
     float tt = *result;
   } else {
     printError(Test::Error::Serious);
   }
 #endif
+#endif
 
 #if defined(RESULT_TEST)
+#if defined(UINT8T_TEST)
   if (auto result = test.functionReturningUint8_t()) {
     uint8_t tt = *result;
   } else {
     printError(result.error());
   }
+#endif
+#if defined(UINT32T_TEST)
   if (auto result = test.functionReturningUint32_t()) {
     uint32_t tt = *result;
   } else {
     printError(result.error());
   }
+#endif
+#if defined(UINT64T_TEST)
   if (auto result = test.functionReturningUint64_t()) {
     uint64_t tt = *result;
   } else {
     printError(result.error());
   }
+#endif
+#if defined(FLOAT_TEST)
   if (auto result = test.functionReturningFloat()) {
     float tt = *result;
   } else {
     printError(result.error());
   }
+#endif
 #endif
 }

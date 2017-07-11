@@ -43,7 +43,7 @@
 #include <experimental/optional>
 #include "microhal_bsp.h"
 
-//#define ERROR_BY_ARGUMENT_TEST
+#include "functions.h"
 
 #if defined(ERROR_BY_ARGUMENT_TEST)
 #include "returnErrorByArgument.h"
@@ -67,10 +67,9 @@ void printError(Test::Error error) { err = error; }
 int main() {
   Test test;
 
-  uint32_t i = 1000;
+  uint32_t i = 100;
 
-  debugPort.write("Result class benchmarking.\n");
-  uint32_t ticks = 99999;
+  uint32_t ticks = 999999;
   SysTick_Config(ticks);
 
   uint32_t start = SysTick->VAL;
@@ -84,115 +83,150 @@ int main() {
 #if defined(ERROR_BY_ARGUMENT_TEST)
     Test::Error error;
 
+#if defined(UINT8T_TEST)
     uint8_t u8 = test.functionReturningUint8_t(&error);
     if (error != Test::Error::None) {
+      dataFunc(u8);
     } else {
       printError(error);
     }
-
+#endif
+#if defined(UINT32T_TEST)
     uint32_t u32 = test.functionReturningUint32_t(&error);
     if (error != Test::Error::None) {
+      dataFunc(u32);
     } else {
       printError(error);
     }
-
+#endif
+#if defined(UINT64T_TEST)
     uint32_t u64 = test.functionReturningUint64_t(&error);
     if (error != Test::Error::None) {
+      dataFunc(u64);
     } else {
       printError(error);
     }
-
+#endif
+#if defined(FLOAT_TEST)
     float fl = test.functionReturningFloat(&error);
     if (error != Test::Error::None) {
+      dataFunc(fl);
     } else {
       printError(error);
     }
+#endif
 #endif
 
 #if defined(RETURN_ERROR_TEST)
+    Test::Error result;
+#if defined(UINT8T_TEST)
     uint8_t u8;
-    auto result = test.functionReturningUint8_t(u8);
+    result = test.functionReturningUint8_t(u8);
     if (result == Test::Error::None) {
-      // printf("%d", u8_t);
+      dataFunc(u8);
     } else {
       printError(result);
     }
-
+#endif
+#if defined(UINT32T_TEST)
     uint32_t u32;
     result = test.functionReturningUint32_t(u32);
     if (result == Test::Error::None) {
+      dataFunc(u32);
     } else {
       printError(result);
     }
-
+#endif
+#if defined(UINT64T_TEST)
     uint64_t u64;
     result = test.functionReturningUint64_t(u64);
     if (result == Test::Error::None) {
+      dataFunc(u64);
     } else {
       printError(result);
     }
-
+#endif
+#if defined(FLOAT_TEST)
     float fl;
     result = test.functionReturningFloat(fl);
     if (result == Test::Error::None) {
+      dataFunc(fl);
     } else {
       printError(result);
     }
 #endif
+#endif
 
 #if defined(OPTIONAL_TEST)
+#if defined(UINT8T_TEST)
     if (auto result = test.functionReturningUint8_t()) {
-      uint8_t tt = *result;
-    } else {
-      printError(Test::Error::Serious);
-    }
-    if (auto result = test.functionReturningUint32_t()) {
-      uint32_t tt = *result;
-    } else {
-      printError(Test::Error::Serious);
-    }
-    if (auto result = test.functionReturningUint64_t()) {
-      uint64_t tt = *result;
-    } else {
-      printError(Test::Error::Serious);
-    }
-    if (auto result = test.functionReturningFloat()) {
-      float tt = *result;
+      dataFunc(*result);
     } else {
       printError(Test::Error::Serious);
     }
 #endif
+#if defined(UINT32T_TEST)
+    if (auto result = test.functionReturningUint32_t()) {
+      dataFunc(*result);
+    } else {
+      printError(Test::Error::Serious);
+    }
+#endif
+#if defined(UINT64T_TEST)
+    if (auto result = test.functionReturningUint64_t()) {
+      dataFunc(*result);
+    } else {
+      printError(Test::Error::Serious);
+    }
+#endif
+#if defined(FLOAT_TEST)
+    if (auto result = test.functionReturningFloat()) {
+      dataFunc(*result);
+    } else {
+      printError(Test::Error::Serious);
+    }
+#endif
+#endif
 
 #if defined(RESULT_TEST)
+#if defined(UINT8T_TEST)
     if (auto result = test.functionReturningUint8_t()) {
-      uint8_t tt = *result;
+      dataFunc(*result);
     } else {
       printError(result.error());
     }
+#endif
+#if defined(UINT32T_TEST)
     if (auto result = test.functionReturningUint32_t()) {
-      uint32_t tt = *result;
+      dataFunc(*result);
     } else {
       printError(result.error());
     }
+#endif
+#if defined(UINT64T_TEST)
     if (auto result = test.functionReturningUint64_t()) {
-      uint64_t tt = *result;
+      dataFunc(*result);
     } else {
       printError(result.error());
     }
+#endif
+#if defined(FLOAT_TEST)
     if (auto result = test.functionReturningFloat()) {
-      float tt = *result;
+      dataFunc(*result);
     } else {
       printError(result.error());
     }
+#endif
 #endif
   }
 
   uint32_t stop = SysTick->VAL;
   auto cyclesCount = start - stop - 1;
   char buffer[30];
-  sprintf(buffer, "%d", cyclesCount);
+  sprintf(buffer, "%d\n", cyclesCount);
+  debugPort.write("Result class benchmarking.\n");
   debugPort.write(buffer);
-  debugPort.write("\n");
+  // debugPort.write("\n");
   while (1)
     ;
 }
